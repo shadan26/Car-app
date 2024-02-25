@@ -72,17 +72,27 @@ class _ShowProductViewState extends State<ShowProductView> {
                      Navigator.push(context, MaterialPageRoute(builder: (context) => DetailView(car:products[index]),));
                     },
                     child: Container(
-                      padding: EdgeInsets.all(10),
+                      padding: EdgeInsets.all(5),
+                     // margin: EdgeInsets.all(18),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
                         color: Colors.white,
+
                       ),
+                      //height: 60,
+                      //width: 70,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           Image.network(
                             products[index].imageName,
-                            height: 60,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(Icons.error); // Display error icon
+                            },
+                           // height: 50,
+                            //width: 40,
+
                           ),
                           Text(
                             products[index].brand + " " + products[index].model,
