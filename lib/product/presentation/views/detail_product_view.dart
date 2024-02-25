@@ -1,46 +1,4 @@
-// import 'package:flutter/cupertino.dart';
-// import 'package:flutter/material.dart';
 
-// import '../../domain/entity/car_product_entity.dart';
-
-// class DetailView extends StatelessWidget {
-//   const DetailView({super.key, required this.car});
-//   final Car car;
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: Column(children: [
-//         Image.network(car.imageName),
-//         Text(car.model),
-//         SizedBox(
-//           height: 20,
-//         ),
-//         Text(
-//           car.desecription,
-//           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-//         ),
-//         SizedBox(
-//           height: 20,
-//         ),
-//         Align(
-//           alignment: Alignment.centerRight,
-//           child: Text(
-//             car.price.toString(),
-//             style: TextStyle(
-//               fontSize: 20,
-//               fontWeight: FontWeight.bold,
-//               color: Colors.red,
-//             ),
-//           ),
-//         ),
-//         Text(
-//           "call Me at: " + "  " + car.callMe,
-//           style: TextStyle(color: Colors.blue),
-//         )
-//       ]),
-//     );
-//   }
-// }
 import 'package:flutter/material.dart';
 
 import '../../domain/entity/car_product_entity.dart';
