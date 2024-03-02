@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../constent.dart';
@@ -6,7 +5,7 @@ import '../../../constent.dart';
 class DropDownCategory extends StatefulWidget {
 
   const DropDownCategory({super.key});
-  static String? selectedCategory;//اقدر اوصل ل القمية من اي مكان ازا عرفتها ststic
+  static String? selectedCategory;
   @override
   State<DropDownCategory> createState() => _DropDownCategoryState();
 }
@@ -16,7 +15,7 @@ class _DropDownCategoryState extends State<DropDownCategory> {
   @override
   Widget build(BuildContext context) {
     return  DropdownButton<String>(
-      hint: Text('Select a category'),
+      hint: const Text('Select a category'),
       value:DropDownCategory.selectedCategory ,
       onChanged: (newValue) {
         setState(() {
@@ -24,7 +23,7 @@ class _DropDownCategoryState extends State<DropDownCategory> {
         });
       },
       items: [
-        DropdownMenuItem<String>(
+        const DropdownMenuItem<String>(
           value: '',
           child: Text('all'),
         ),

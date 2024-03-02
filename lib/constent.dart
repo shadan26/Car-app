@@ -1,6 +1,8 @@
 // List of constant cars with image URLs from network
-import 'package:ecommerc_project/product/domain/entity/car_product_entity.dart';
+import 'dart:ui';
 
+import 'package:ecommerc_project/product/domain/entity/car_product_entity.dart';
+const kPrimaryColor=Color(0xff365b6d);
 final List<Car> carList = [
   Car(
       brand: 'Toyota',

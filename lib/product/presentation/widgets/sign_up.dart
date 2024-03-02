@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../constent.dart';
+import '../../../core/utils/widget/text_form_filed_widget.dart';
 import '../views/show_product_view.dart';
-import 'login_screen.dart';
 
 
 
@@ -55,13 +55,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
         backgroundColor: kPrimaryColor,
         body:
         SingleChildScrollView(
-          physics:  ClampingScrollPhysics(),
+          physics:  const ClampingScrollPhysics(),
           scrollDirection: Axis.vertical,
           child: Form(
             key: _formKey,
             child: SingleChildScrollView(
               child: Column(
-                      
+
                 children: [
                   SizedBox(
                     width: width,//
@@ -107,57 +107,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         const SizedBox(height: 40),
                         Padding(
                           padding: const EdgeInsets.only(right: 20),
-                          child: TextFormField(
-                            obscureText: false,
-                            controller: emailTextEditingController,//hhh
-                            decoration: InputDecoration(
-                              floatingLabelBehavior: FloatingLabelBehavior.always,
-                              labelText: 'Email',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(31.5),
-                              ),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your email';
-                              }
-                              // You can add more validation rules here if needed
-                              return null;
-                            },
-                          ),
+                          child: TextFiledWidget(
+                          controller: emailTextEditingController,
+                          labelText: 'email',
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your email';
+                            }
+                            // You can add more validation rules here if needed
+                            return null;
+                          },
                         ),
-              
+                        ),
+
                         const SizedBox(height: 16),
                         Padding(
                           padding: const EdgeInsets.only(right: 20),
-                          child: TextFormField(
+                          child: TextFiledWidget(
                             controller: passwordTextEditingController,
-                            obscureText: !showPassword,
-                            //show password=true =obscureText=>false
-                            //not show password=false =obscureText=>true
-                            decoration: InputDecoration(
-                              floatingLabelBehavior: FloatingLabelBehavior.always,
-                              labelText: 'Password',
-                              suffixIcon:
-              
-              
-              
-                              IconButton(
-                                icon: Icon(
-                                  // true? print(true):print(false)
-                                  showPassword ? Icons.visibility : Icons.visibility_off,
-                                  color: Theme.of(context).primaryColorDark,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    showPassword = !showPassword;
-                                  });
-                                },
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(31.5),
-                              ),
-                            ),
+                            labelText: 'password',
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Please enter your password';
@@ -165,8 +133,21 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               // You can add more validation rules here if needed
                               return null;
                             },
+                            suffixIcon:  IconButton(
+                              icon: Icon(
+                                // true? print(true):print(false)
+                                showPassword ? Icons.visibility : Icons.visibility_off,
+                                color: Theme.of(context).primaryColorDark,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  showPassword = !showPassword;
+                                });
+                              },
+                            ),
                           ),
-                        ),        Padding(
+                        ),
+                        Padding(
                           padding: const EdgeInsets.only(top: 20,),
                           child: DropdownButtonFormField<String>(
                             value: _selectedRole,
@@ -198,27 +179,23 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-              
+
                         const SizedBox(height: 10),
                         errorMassage!=null? Row(children: [
-                          Icon(Icons.error,color: Colors.red,),
-                          Text(errorMassage!,style: TextStyle(color: Colors.red,overflow:TextOverflow.ellipsis, ),maxLines: 2,overflow: TextOverflow.ellipsis,)
-                        ],):Text(''),
+                          const Icon(Icons.error,color: Colors.red,),
+                          Text(errorMassage!,style: const TextStyle(color: Colors.red,overflow:TextOverflow.ellipsis, ),maxLines: 2,overflow: TextOverflow.ellipsis,)
+                        ],):const Text(''),
                         SizedBox(
                           width: width,
                           height: 30,
                           child: ElevatedButton(
                             onPressed: () async {
                               if(_formKey.currentState!.validate()){
-              
-              
+
+
                                 try {
-                                  UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                                    email: emailTextEditingController.text,
-                                    password: passwordTextEditingController.text,
-                                  );
                                   var collectoin = FirebaseFirestore.instance.collection('users');
-                                   await collectoin.add (
+                                  await collectoin.add (
 
                                     {
                                       'email':emailTextEditingController.text,
@@ -249,55 +226,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   print('Error: $e');
                                 }
                               }},
-                            child: const Text('Sign up'),
                             style: ElevatedButton.styleFrom(
                             ),
+                            child: const Text('Sign up'),
                           ),
                         ),
-              
-              
-                        // Row(children: [
-                        //   TextButton(child: Text("Already have account ?",
-                        //     style: GoogleFonts.poppins(
-                        //       textStyle: const TextStyle(
-                        //         color: Color.fromARGB(255, 66, 63, 63),
-                        //         fontSize: 16,
-                        //         fontWeight: FontWeight.w400,
-                        //
-                        //       ),),),
-                        //     onPressed: () {
-                        //
-                        //       Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen(),));
-                        //     },)
-                        // ],)
-                        // Row(
-                        //   mainAxisAlignment: MainAxisAlignment.center,
-                        //   children: [
-                        //     Text(
-                        //       'Don\'t have an account?',
-                        //       style: GoogleFonts.poppins(
-                        //         textStyle: const TextStyle(
-                        //           color: Color.fromARGB(255, 66, 63, 63),
-                        //           fontSize: 16,
-                        //           fontWeight: FontWeight.w400,
-                        //         ),
-                        //       ),
-                        //     ),
-                        //     TextButton(
-                        //       onPressed: () async {
-                        //         // Handle registration button pressed
-                        //       },
-                        //       child: Text(
-                        //         'Register',
-                        //         style: TextStyle(
-                        //           color: Colors.cyan,
-                        //           fontSize: 16,
-                        //           fontWeight: FontWeight.w500,
-                        //         ),
-                        //       ),
-                        //     ),
-                        //   ],
-                        // ),
                       ],
                     ),
                   ),

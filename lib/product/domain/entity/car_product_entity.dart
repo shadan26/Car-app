@@ -14,7 +14,7 @@ class Car {
       required this.year,
       required this.color,
       required this.price,
-      required this.imageName,
+       this.imageName='',
       required this.desecription,
       required this.callMe});
 }

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../constent.dart';
@@ -15,14 +14,14 @@ class GridViewProduct extends StatelessWidget {
     carList.where((element) => element.brand==DropDownCategory.selectedCategory).toList();
     return  GridView.builder(
       itemCount: products.length,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 10,
         mainAxisSpacing: 10,
       ),
       itemBuilder: (context, index) {
         return Container(
-          padding: EdgeInsets.all(30),
+          padding: const EdgeInsets.all(30),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             color: Colors.white,
@@ -35,18 +34,18 @@ class GridViewProduct extends StatelessWidget {
                 height: 60,
               ),
               Text(
-                products[index].brand + " " + products[index].model,
-                style: TextStyle(
+                "${products[index].brand} ${products[index].model}",
+                style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Align(
                 alignment: Alignment.bottomLeft,
                 child: Text(
-                  products[index].price.toString() + "\$",
-                  style: TextStyle(
+                  "${products[index].price}\$",
+                  style: const TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                     color: Colors.red,
