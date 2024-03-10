@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 class TextFiledWidget extends StatelessWidget {
-  const TextFiledWidget({Key? key, required this.controller, required this.labelText, this.validator, this.suffixIcon});
+  const TextFiledWidget(
+      {super.key,
+      required this.controller,
+      required this.labelText,
+      this.validator,
+      this.suffixIcon});
 
   final TextEditingController controller;
   final String labelText;
@@ -15,7 +20,6 @@ class TextFiledWidget extends StatelessWidget {
       child: TextFormField(
         controller: controller,
         decoration: InputDecoration(
-
           floatingLabelBehavior: FloatingLabelBehavior.always,
           labelText: labelText,
           suffixIcon: suffixIcon,
@@ -28,4 +32,3 @@ class TextFiledWidget extends StatelessWidget {
     );
   }
 }
-

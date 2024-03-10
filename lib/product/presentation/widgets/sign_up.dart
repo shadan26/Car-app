@@ -1,16 +1,12 @@
-
-
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../constent.dart';
 import '../../../core/utils/widget/text_form_filed_widget.dart';
-import '../views/show_product_view.dart';
-
-
+import '../../../product/presentation/views/show_product_view.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);
@@ -28,14 +24,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String? _selectedRole;
   String? errorMassage;
 
+  FirebaseAuth? firebaseAuth;
 
-  FirebaseAuth ? firebaseAuth ;
   @override
   void initState() {
-
     // TODO: implement initState
     super.initState();
   }
+
   @override
   void dispose() {
     emailTextEditingController.dispose();
@@ -44,6 +40,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     // TODO: implement dispose
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
@@ -51,20 +48,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     return SafeArea(
       child: Scaffold(
-
         backgroundColor: kPrimaryColor,
-        body:
-        SingleChildScrollView(
-          physics:  const ClampingScrollPhysics(),
+        body: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
           scrollDirection: Axis.vertical,
           child: Form(
             key: _formKey,
             child: SingleChildScrollView(
               child: Column(
-
                 children: [
                   SizedBox(
-                    width: width,//
+                    width: width, //
                     height: height * .3,
                     child: Image.asset(
                       'assets/images/Green Abstract Illustrative Automotive Car Logo.png',
@@ -108,18 +102,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         Padding(
                           padding: const EdgeInsets.only(right: 20),
                           child: TextFiledWidget(
-                          controller: emailTextEditingController,
-                          labelText: 'email',
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your email';
-                            }
-                            // You can add more validation rules here if needed
-                            return null;
-                          },
+                            controller: emailTextEditingController,
+                            labelText: 'email',
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your email';
+                              }
+                              // You can add more validation rules here if needed
+                              return null;
+                            },
+                          ),
                         ),
-                        ),
-
                         const SizedBox(height: 16),
                         Padding(
                           padding: const EdgeInsets.only(right: 20),
@@ -133,10 +126,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               // You can add more validation rules here if needed
                               return null;
                             },
-                            suffixIcon:  IconButton(
+                            suffixIcon: IconButton(
                               icon: Icon(
                                 // true? print(true):print(false)
-                                showPassword ? Icons.visibility : Icons.visibility_off,
+                                showPassword
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
                                 color: Theme.of(context).primaryColorDark,
                               ),
                               onPressed: () {
@@ -148,7 +143,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                         ),
                         Padding(
-                          padding: const EdgeInsets.only(top: 20,),
+                          padding: const EdgeInsets.only(
+                            top: 20,
+                          ),
                           child: DropdownButtonFormField<String>(
                             value: _selectedRole,
                             onChanged: (String? newValue) {
@@ -164,7 +161,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               );
                             }).toList(),
                             decoration: InputDecoration(
-                              floatingLabelBehavior: FloatingLabelBehavior.always,
+                              floatingLabelBehavior:
+                                  FloatingLabelBehavior.always,
                               labelText: 'Select Role',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(31.5),
@@ -179,55 +177,79 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-
                         const SizedBox(height: 10),
-                        errorMassage!=null? Row(children: [
-                          const Icon(Icons.error,color: Colors.red,),
-                          Text(errorMassage!,style: const TextStyle(color: Colors.red,overflow:TextOverflow.ellipsis, ),maxLines: 2,overflow: TextOverflow.ellipsis,)
-                        ],):const Text(''),
+                        errorMassage != null
+                            ? Row(
+                                children: [
+                                  const Icon(
+                                    Icons.error,
+                                    color: Colors.red,
+                                  ),
+                                  Text(
+                                    errorMassage!,
+                                    style: const TextStyle(
+                                      color: Colors.red,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  )
+                                ],
+                              )
+                            : const Text(''),
                         SizedBox(
                           width: width,
                           height: 30,
                           child: ElevatedButton(
                             onPressed: () async {
-                              if(_formKey.currentState!.validate()){
-
-
+                              if (_formKey.currentState!.validate()) {
                                 try {
-                                  var collectoin = FirebaseFirestore.instance.collection('users');
-                                  await collectoin.add (
-
+                                  var collectoin = FirebaseFirestore.instance
+                                      .collection('users');
+                                  await collectoin.add(
                                     {
-                                      'email':emailTextEditingController.text,
+                                      'id': FirebaseAuth
+                                          .instance.currentUser!.uid,
+                                      'email': emailTextEditingController.text,
                                       'role': _selectedRole,
                                     },
                                   );
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => ShowProductView(),));
-                                  // Successfully signed in
-                                  // You can access the user information via userCredential.user
-                                }
-                                on FirebaseAuthException catch (e) {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const ShowProductView(),
+                                      ));
+                                } on FirebaseAuthException catch (e) {
                                   if (e.code == 'weak-password') {
                                     setState(() {
-                                      errorMassage='The password provided is too weak.';
+                                      errorMassage =
+                                          'The password provided is too weak.';
                                     });
-                                    print('The password provided is too weak.');
+                                    if (kDebugMode) {
+                                      print('The password provided is too weak.');
+                                    }
                                   } else if (e.code == 'email-already-in-use') {
                                     setState(() {
-                                      errorMassage='The account already exists for that email.';
+                                      errorMassage =
+                                          'The account already exists for that email.';
                                     });
-                                    print('The account already exists for that email.');
+                                    if (kDebugMode) {
+                                      print(
+                                        'The account already exists for that email.');
+                                    }
                                   }
                                 } catch (e) {
                                   // Handle other exceptions
                                   setState(() {
-                                    errorMassage=e.toString();
+                                    errorMassage = e.toString();
                                   });
-                                  print('Error: $e');
+                                  if (kDebugMode) {
+                                    print('Error: $e');
+                                  }
                                 }
-                              }},
-                            style: ElevatedButton.styleFrom(
-                            ),
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(),
                             child: const Text('Sign up'),
                           ),
                         ),
@@ -241,4 +263,5 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
       ),
     );
-  }}
+  }
+}

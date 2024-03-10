@@ -1,60 +1,83 @@
+// product_detail.dart
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-import '../../domain/entity/car_product_entity.dart';
+import 'edit.dart';
 
-class DetailView extends StatelessWidget {
-  const DetailView({Key? key, required this.car}) : super(key: key);
+class ProductDetailPage extends StatelessWidget {
+  final Map<String, dynamic> productData; // Pass product data to the detail page
 
-  final Car car;
+  const ProductDetailPage({Key? key, required this.productData}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Car Details'),
+        title: const Text('Product Detail'),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Image.network(
-              car.imageName,
-              height: 200,
-              fit: BoxFit.cover,
+              productData['imageNmae'],
+              errorBuilder: (context, error, stackTrace) {
+                return const Icon(Icons.error);
+              },
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             Text(
-              car.model,
+              "${productData['model']} ${productData['brand']}",
               style: const TextStyle(
-                fontSize: 24,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 10),
             Text(
-              car.desecription,
-              style: const TextStyle(
-                fontSize: 18,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Price: \$${car.price}',
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.red,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Contact: ${car.callMe}',
+              'Price: ${productData['price']}\$',
               style: const TextStyle(
                 fontSize: 16,
-                color: Colors.blue,
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
               ),
+            ),
+            // Add other product details as needed
+
+            // Edit and Delete buttons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const EditProduct(productData:{},),
+                        ));
+                  },
+                  child: const Text('Edit'),
+                ),
+                ElevatedButton(
+                  onPressed: ()async {
+
+                    try {
+                      await FirebaseFirestore.instance.collection('product').doc(productData['documentId']).delete();
+                      Navigator.pop(context);
+                    } on Exception {
+                      // TODO
+                    }
+
+
+                  },
+                  style: ElevatedButton.styleFrom(
+                    // Use red color for the delete button
+                  ),
+                  child: const Text('Delete'),
+                ),
+              ],
             ),
           ],
         ),
@@ -62,3 +85,5 @@ class DetailView extends StatelessWidget {
     );
   }
 }
+
+

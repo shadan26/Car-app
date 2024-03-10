@@ -1,11 +1,17 @@
 
-import 'package:ecommerc_project/product/presentation/views/show_product_view.dart';
+
+
 import 'package:ecommerc_project/product/presentation/widgets/sign_up.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+
 import '../../../constent.dart';
 import '../../../core/utils/widget/text_form_filed_widget.dart';
+import '../../../product/presentation/views/show_product_view.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -184,6 +190,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
                               try {
+
+
                                 Navigator.push(context, MaterialPageRoute(
                                   builder: (context) => const ShowProductView(),));
                                 // Successfully signed in
@@ -194,25 +202,33 @@ class _LoginScreenState extends State<LoginScreen> {
                                     errorMessage =
                                     'passwordTextEditingController';
                                   });
-                                  print('passwordTextEditingController');
+                                  if (kDebugMode) {
+                                    print('passwordTextEditingController');
+                                  }
                                 } else if (e.code == 'wrong-password') {
                                   // Handle the case where password is incorrect
                                   setState(() {
                                     errorMessage =
                                     'Wrong password provided for that user.';
                                   });
-                                  print(
+                                  if (kDebugMode) {
+                                    print(
                                       'Wrong password provided for that user.');
+                                  }
                                 } else {
                                   // Handle other errors
                                   setState(() {
                                     errorMessage = e.message;
                                   });
-                                  print('Error: ${e.message}');
+                                  if (kDebugMode) {
+                                    print('Error: ${e.message}');
+                                  }
                                 }
                               } catch (e) {
                                 // Handle other exceptions
-                                print('Error: $e');
+                                if (kDebugMode) {
+                                  print('Error: $e');
+                                }
                               }
                             }
                           },
