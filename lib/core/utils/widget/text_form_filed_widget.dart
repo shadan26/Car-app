@@ -5,9 +5,11 @@ class TextFiledWidget extends StatelessWidget {
       {super.key,
       required this.controller,
       required this.labelText,
+        this.obscureText,
       this.validator,
       this.suffixIcon});
 
+  final bool? obscureText;
   final TextEditingController controller;
   final String labelText;
   final String? Function(String?)? validator;
@@ -28,6 +30,7 @@ class TextFiledWidget extends StatelessWidget {
           ),
         ),
         validator: validator,
+        obscureText: obscureText ?? false,
       ),
     );
   }

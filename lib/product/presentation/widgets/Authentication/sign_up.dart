@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ecommerc_project/core/Firebase/FirebaseManager.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../constent.dart';
-import '../../../core/utils/widget/text_form_filed_widget.dart';
-import '../../../product/presentation/views/show_product_view.dart';
+import '../../../../constent.dart';
+import '../../../../core/utils/widget/text_form_filed_widget.dart';
+import '../../views/Product Views/admin_home_page.dart';
+import '../../views/Product Views/user_home_page.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);
@@ -25,21 +27,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String? errorMassage;
 
   FirebaseAuth? firebaseAuth;
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    emailTextEditingController.dispose();
-    passwordTextEditingController.dispose();
-
-    // TODO: implement dispose
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +95,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               if (value == null || value.isEmpty) {
                                 return 'Please enter your email';
                               }
-                              // You can add more validation rules here if needed
+
                               return null;
                             },
                           ),
@@ -117,18 +104,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         Padding(
                           padding: const EdgeInsets.only(right: 20),
                           child: TextFiledWidget(
+                            obscureText: !showPassword,
                             controller: passwordTextEditingController,
                             labelText: 'password',
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Please enter your password';
                               }
-                              // You can add more validation rules here if needed
                               return null;
                             },
                             suffixIcon: IconButton(
                               icon: Icon(
-                                // true? print(true):print(false)
                                 showPassword
                                     ? Icons.visibility
                                     : Icons.visibility_off,
@@ -177,7 +163,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        const SizedBox(height: 10),
                         errorMassage != null
                             ? Row(
                                 children: [
@@ -192,7 +177,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                     maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
+                                     overflow: TextOverflow.ellipsis,
                                   )
                                 ],
                               )
@@ -203,59 +188,62 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           child: ElevatedButton(
                             onPressed: () async {
                               if (_formKey.currentState!.validate()) {
-                                try {
-                                  var collectoin = FirebaseFirestore.instance
-                                      .collection('users');
-                                  await collectoin.add(
-                                    {
-                                      'id': FirebaseAuth
-                                          .instance.currentUser!.uid,
-                                      'email': emailTextEditingController.text,
-                                      'role': _selectedRole,
-                                    },
-                                  );
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const ShowProductView(),
-                                      ));
-                                } on FirebaseAuthException catch (e) {
-                                  if (e.code == 'weak-password') {
-                                    setState(() {
-                                      errorMassage =
-                                          'The password provided is too weak.';
-                                    });
-                                    if (kDebugMode) {
-                                      print('The password provided is too weak.');
-                                    }
-                                  } else if (e.code == 'email-already-in-use') {
-                                    setState(() {
-                                      errorMassage =
-                                          'The account already exists for that email.';
-                                    });
-                                    if (kDebugMode) {
-                                      print(
-                                        'The account already exists for that email.');
-                                    }
-                                  }
-                                } catch (e) {
-                                  // Handle other exceptions
-                                  setState(() {
-                                    errorMassage = e.toString();
-                                  });
-                                  if (kDebugMode) {
-                                    print('Error: $e');
-                                  }
+                              var authResult = await FirebaseManager().register(emailTextEditingController.text,
+                                  passwordTextEditingController.text,
+                                  _selectedRole!);
+
+                              if (authResult.isSuccess) {
+                                if (_selectedRole == "admin") {
+                                  Navigator.push(context, MaterialPageRoute(
+                                      builder: (context) => const ShowAdminProductView()));
+                                } else {
+                                  Navigator.push(context, MaterialPageRoute(
+                                      builder: (context) => const ShowProductView()));
                                 }
+                              } else {
+                                setState(() {
+                                  errorMassage = authResult.error;
+                                });
+                              }
                               }
                             },
                             style: ElevatedButton.styleFrom(),
                             child: const Text('Sign up'),
                           ),
                         ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Already have an account?',
+                              style: GoogleFonts.poppins(
+                                textStyle: const TextStyle(
+                                  color: Color.fromARGB(255, 66, 63, 63),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(context, MaterialPageRoute(
+                                  builder: (context) => const SignUpScreen(),));
+                              },
+                              child: const Text(
+                                'Sign In',
+                                style: TextStyle(
+                                  color: Colors.cyan,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
+
                 ],
               ),
             ),

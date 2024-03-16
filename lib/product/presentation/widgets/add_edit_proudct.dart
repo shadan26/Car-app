@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:math';
-
-import 'package:ecommerc_project/product/presentation/views/show_product_view.dart';
+import 'package:ecommerc_project/product/presentation/views/Product%20Views/Admin_home_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,19 +8,27 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:uuid/uuid.dart';
+import '../../../core/Firebase/FirebaseManager.dart';
 import '../../../core/utils/widget/text_form_filed_widget.dart';
 import '../../domain/entity/car_product_entity.dart';
+import '../views/Product Views/user_home_page.dart';
 
-class EditProduct extends StatefulWidget {
-  final Map<String, dynamic> productData; // Pass product data to the detail page
-  const EditProduct({Key? key, required this.productData}) : super(key: key);
+class AddEditProduct extends StatefulWidget {
+  const AddEditProduct({Key? key, required this.productActionType, this.productData}) : super(key: key);
+  final ProductActionType productActionType; // add, edit
+  final Map<String, dynamic>? productData; // for edit
 
   @override
-  State<EditProduct> createState() => _EditProductState();
+  State<AddEditProduct> createState() => _AddEditProductState(productActionType, productData);
 }
 
-class _EditProductState extends State<EditProduct> {
+enum ProductActionType {
+  add,
+  edit
+}
+
+class _AddEditProductState extends State<AddEditProduct> {
 
   final _formKey = GlobalKey<FormState>();
 
@@ -33,12 +40,26 @@ class _EditProductState extends State<EditProduct> {
   TextEditingController desecriptionTextEditingController = TextEditingController();
   TextEditingController callmeTextEditingController = TextEditingController();
 
-  String? errorMassage;
   XFile? xFile;
-  FirebaseAuth? firebaseAuth;
+  ProductActionType? actionType;
+  Map<String, dynamic>? productData;
 
+  _AddEditProductState(ProductActionType this.actionType, Map<String, dynamic>? this.productData);
 
-
+  @override
+  void initState() {
+    super.initState();
+    if(actionType == ProductActionType.edit) {
+      brandTextEditingController.text = productData?['brand'];
+      modelTextEditingController.text = productData?['model'];
+      colorTextEditingController.text = productData?['color'];
+      priceTextEditingController.text = '${productData?['price']}';
+      desecriptionTextEditingController.text = productData?['description'];
+      callmeTextEditingController.text = productData?['call'];
+      yearTextEditingController.text = '${productData?['year']}';
+    }
+  }
+  
   @override
   void dispose() {
     brandTextEditingController.dispose();
@@ -55,7 +76,10 @@ class _EditProductState extends State<EditProduct> {
 
   @override
   Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
+    double width = MediaQuery
+        .of(context)
+        .size
+        .width;
 
     return SafeArea(
       child: Scaffold(
@@ -72,7 +96,7 @@ class _EditProductState extends State<EditProduct> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Edit proudct',
+                   actionType == ProductActionType.add ? 'Add product' : 'Edit product',
                     style: GoogleFonts.poppins(
                       textStyle: const TextStyle(
                         fontSize: 32,
@@ -85,6 +109,7 @@ class _EditProductState extends State<EditProduct> {
                   TextFiledWidget(
                     controller: brandTextEditingController,
                     labelText: 'brand',
+
                   ),
                   const SizedBox(height: 16),
                   TextFiledWidget(
@@ -109,7 +134,7 @@ class _EditProductState extends State<EditProduct> {
                   const SizedBox(height: 16),
                   TextFiledWidget(
                     controller: desecriptionTextEditingController,
-                    labelText: 'desecription',
+                    labelText: 'description',
                   ),
                   const SizedBox(height: 16),
                   TextFiledWidget(
@@ -122,29 +147,38 @@ class _EditProductState extends State<EditProduct> {
                     height: 40,
                     child: ElevatedButton(
                       onPressed: () async {
-
-                        File file=File(xFile!.path);
-                        Car model = Car(
-                            id:(DateTime.now().millisecondsSinceEpoch)+(Random().nextInt(1000)),
+                        File file = File(xFile!.path);
+                        var car = Car(
+                            id: ( const Uuid().v1()),
                             model: modelTextEditingController.text,
                             brand: brandTextEditingController.text,
                             year: int.tryParse(yearTextEditingController.text) ?? 0,
                             color: colorTextEditingController.text,
                             price: double.tryParse(priceTextEditingController.text) ?? 0.0,
                             desecription: desecriptionTextEditingController.text,
-                            callMe: callmeTextEditingController.text,
-                            imageName: (await uploadImageToFirebaseStorage(file))!, description: ''
-                        );
-                        if (kDebugMode) {
-                          print("MODELLL");
+                            callMe: desecriptionTextEditingController.text,
+                            imageName: (await uploadImageToFirebaseStorage(file))!,
+                            description: '', createdAt: DateTime.now().millisecondsSinceEpoch);
+                        if (actionType == ProductActionType.add) {
+                          await FirebaseManager().addCar(car);
+                        } else {
+                          await FirebaseManager().editCar(car);
                         }
-                        updateDocument(model);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ShowAdminProductView(),
+                          ),
+                        );
                       },
                       style: ElevatedButton.styleFrom(),
-                      child: const Text(
-                        'Add',
-                        style: TextStyle( fontSize: 16,
-                          fontWeight: FontWeight.bold, color: Colors.blue,),
+                      child: Text(
+                        actionType == ProductActionType.add ? 'Add' : "Edit",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                        ),
                       ),
                     ),
                   ),
@@ -156,55 +190,7 @@ class _EditProductState extends State<EditProduct> {
       ),
     );
   }
-  void updateDocument(Car carModel) async {
-    // Initialize Firebase
 
-    // Reference to the collection
-    CollectionReference collectionReference = FirebaseFirestore.instance.collection('product');
-    try {
-      if (kDebugMode) {
-        print(widget.productData['id']);
-      }
-      // Query for the document with name equal to "11"
-      QuerySnapshot querySnapshot = await collectionReference.where('id', isEqualTo: widget.productData['id']).get();
-
-      // Check if any documents match the query
-      if (querySnapshot.docs.isNotEmpty) {
-        // Update the first matching document
-        var documentId = querySnapshot.docs.first.id;
-
-        // Update the document with new data
-        await collectionReference.doc(documentId).update({
-          "model": carModel.model,
-          "brand": carModel.brand,
-          'year': carModel.year,
-          'color': carModel.color,
-          'price': carModel.price,
-          'desecription': carModel.description,
-          'call': carModel.callMe,
-          'imageNmae':carModel.imageName
-          // Add other fields as needed
-        });
-
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const ShowProductView(),
-            ));
-        if (kDebugMode) {
-          print('Document with ID $documentId updated successfully.');
-        }
-      } else {
-        if (kDebugMode) {
-          print('No document found with name equal to "11".');
-        }
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error updating document: $e');
-      }
-    }
-  }
   Future<String?> uploadImageToFirebaseStorage(File imageFile) async {
     try {
       final fileName = DateTime.now().millisecondsSinceEpoch.toString();
@@ -219,7 +205,6 @@ class _EditProductState extends State<EditProduct> {
       return null;
     }
   }
-
 
   Widget _getProfileImageView() {
     return Center(
@@ -237,8 +222,15 @@ class _EditProductState extends State<EditProduct> {
             border: Border.all(color: Colors.black, width: 3),
           ),
           child: Center(
-              child: xFile == null
-                  ? const Icon(Icons.photo)
+              child:
+              xFile == null
+                  ? actionType == ProductActionType.edit ?
+              ClipRRect(
+                borderRadius: BorderRadius.circular(100),
+                child: Image.network(productData?["imageName"],
+                  fit: BoxFit.cover,
+                ),
+              ) : const Icon(Icons.photo)
                   : ClipRRect(
                 borderRadius: BorderRadius.circular(100),
                 child: Image.file(

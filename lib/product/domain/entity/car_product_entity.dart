@@ -8,9 +8,10 @@ class Car {
   final double price;
   final String description;
   late final String imageName;
-  final num id;
+  final String id;
   File? file;
   final String callMe;
+  int createdAt;
 
   Car({required this.id
     ,required this.description,
@@ -20,9 +21,8 @@ class Car {
         required this.color,
         required this.price,
         this.imageName = '',
-        required this.callMe, required String desecription});
-
-
+        required this.createdAt,
+  required this.callMe, required String desecription});
 }
 
 

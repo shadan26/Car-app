@@ -1,9 +1,9 @@
 // product_detail.dart
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ecommerc_project/product/presentation/widgets/add_edit_proudct.dart';
 import 'package:flutter/material.dart';
-
-import 'edit.dart';
+import '../widgets/edit.dart';
 
 class ProductDetailPage extends StatelessWidget {
   final Map<String, dynamic> productData; // Pass product data to the detail page
@@ -22,14 +22,14 @@ class ProductDetailPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Image.network(
-              productData['imageNmae'],
+              productData['imageName'],
               errorBuilder: (context, error, stackTrace) {
                 return const Icon(Icons.error);
               },
             ),
             const SizedBox(height: 10),
             Text(
-              "${productData['model']} ${productData['brand']}",
+              '${productData['model']} ${productData['brand']}',
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -44,10 +44,9 @@ class ProductDetailPage extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            // Add other product details as needed
 
-            // Edit and Delete buttons
             Row(
+
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
@@ -55,7 +54,7 @@ class ProductDetailPage extends StatelessWidget {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const EditProduct(productData:{},),
+                          builder: (context) => AddEditProduct(productActionType: ProductActionType.edit, productData: productData,)// EditProduct(productData:{},),
                         ));
                   },
                   child: const Text('Edit'),
@@ -67,10 +66,7 @@ class ProductDetailPage extends StatelessWidget {
                       await FirebaseFirestore.instance.collection('product').doc(productData['documentId']).delete();
                       Navigator.pop(context);
                     } on Exception {
-                      // TODO
                     }
-
-
                   },
                   style: ElevatedButton.styleFrom(
                     // Use red color for the delete button

@@ -1,16 +1,19 @@
 
-
-
-import 'package:ecommerc_project/product/presentation/widgets/sign_up.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:ecommerc_project/core/Firebase/FirebaseManager.dart';
+import 'package:ecommerc_project/product/presentation/widgets/Authentication/sign_up.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 
-import '../../../constent.dart';
-import '../../../core/utils/widget/text_form_filed_widget.dart';
-import '../../../product/presentation/views/show_product_view.dart';
+import '../../../../constent.dart';
+import '../../../../core/utils/widget/text_form_filed_widget.dart';
+import '../../views/Product Views/admin_home_page.dart';
+import '../../views/Product Views/user_home_page.dart';
 
 
 class LoginScreen extends StatefulWidget {
@@ -29,13 +32,17 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   FirebaseAuth ? firebaseAuth;
 
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-    emailTextEditingController.dispose();
-    passwordTextEditingController.dispose();
-  }
+  // Future<void> getData() async {
+  //   final id = FirebaseAuth.instance.currentUser!.uid;
+  //   final collection = FirebaseFirestore.instance.collection("users");
+  //   final result = await collection.where("id", isEqualTo: id).get();
+  //   if (result.docs.isNotEmpty) {
+  //     final roleFi = result.docs.first.data()['role'];
+  //     setState(() {
+  //       role = roleFi;
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +109,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 40),
                       Container(
-                        margin: const EdgeInsets.only(right: 20),
                         child: Padding(
                           padding: const EdgeInsets.only(right: 20),
                           child: TextFiledWidget(
@@ -112,7 +118,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               if (value == null || value.isEmpty) {
                                 return 'Please enter your email';
                               }
-                              // You can add more validation rules here if needed
                               return null;
                             },
                           ),
@@ -122,25 +127,26 @@ class _LoginScreenState extends State<LoginScreen> {
                       Padding(
                         padding: const EdgeInsets.only(right: 20),
                         child: TextFiledWidget(
+                          obscureText: !showPassword,
                           controller: passwordTextEditingController,
                           labelText: 'password',
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your password';
                             }
-                            // You can add more validation rules here if needed
                             return null;
                           },
                           suffixIcon:  IconButton(
                             icon: Icon(
-                              // true? print(true):print(false)
-                              showPassword ? Icons.visibility : Icons.visibility_off,
+                              showPassword ?
+                              Icons.visibility :
+                              Icons.visibility_off,
                               color: Theme.of(context).primaryColorDark,
                             ),
                             onPressed: () {
                               setState(() {
                                 showPassword = !showPassword;
-                              });
+                                });
                             },
                           ),
                         ),
@@ -148,93 +154,48 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 16),
                       Container(
                         margin: const EdgeInsets.only(right: 20),
-                        // child: DropdownButtonFormField<String>(
-                        //   value: _selectedRole,
-                        //   onChanged: (String? newValue) {
-                        //     setState(() {
-                        //       _selectedRole = newValue;
-                        //     });
-                        //   },
-                        //   items: <String>['doctor', 'patient']
-                        //       .map<DropdownMenuItem<String>>((String value) {
-                        //     return DropdownMenuItem<String>(
-                        //       value: value,
-                        //       child: Text(value),
-                        //     );
-                        //   }).toList(),
-                        //   decoration: InputDecoration(
-                        //     floatingLabelBehavior: FloatingLabelBehavior.always,
-                        //     labelText: 'Select Role',
-                        //     border: OutlineInputBorder(
-                        //       borderRadius: BorderRadius.circular(31.5),
-                        //     ),
-                        //   ),
-                        //   validator: (value) {
-                        //     if (value == null || value.isEmpty) {
-                        //       return 'Please select a role';
-                        //     }
-                        //     return null;
-                        //   },
-                        // ),
+
                       ),
                       const SizedBox(height: 10),
-                      errorMessage != null ? Row(children: [
+                      errorMessage != null ?
+                      Row(children: [
                         const Icon(Icons.error, color: Colors.red,),
-                        Text(errorMessage!)
+                        Expanded(child: Text(errorMessage!))
 
                       ],) : const Text((''))
                       , SizedBox(
                         width: width,
                         height: 40,
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            if (_formKey.currentState!.validate()) {
-                              try {
+                        child: Expanded(
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate()) {
 
-
-                                Navigator.push(context, MaterialPageRoute(
-                                  builder: (context) => const ShowProductView(),));
-                                // Successfully signed in
-                                // You can access the user information via userCredential.user
-                              } on FirebaseAuthException catch (e) {
-                                if (e.code == 'user-not-found') {
-                                  setState(() {
-                                    errorMessage =
-                                    'passwordTextEditingController';
-                                  });
-                                  if (kDebugMode) {
-                                    print('passwordTextEditingController');
-                                  }
-                                } else if (e.code == 'wrong-password') {
-                                  // Handle the case where password is incorrect
-                                  setState(() {
-                                    errorMessage =
-                                    'Wrong password provided for that user.';
-                                  });
-                                  if (kDebugMode) {
-                                    print(
-                                      'Wrong password provided for that user.');
+                                var loginResults = await FirebaseManager().login(emailTextEditingController.text, passwordTextEditingController.text);
+                                if (loginResults.isSuccess) {
+                                  var isAdmin = await FirebaseManager().isAdmin();
+                                  if (isAdmin) {
+                                    Navigator.push(context, MaterialPageRoute(
+                                        builder: (context) => const ShowAdminProductView()));
+                                  } else {
+                                    Navigator.push(context, MaterialPageRoute(
+                                        builder: (context) => const ShowProductView()));
                                   }
                                 } else {
-                                  // Handle other errors
                                   setState(() {
-                                    errorMessage = e.message;
+                                    errorMessage =
+                                    loginResults.error;
                                   });
-                                  if (kDebugMode) {
-                                    print('Error: ${e.message}');
-                                  }
-                                }
-                              } catch (e) {
-                                // Handle other exceptions
-                                if (kDebugMode) {
-                                  print('Error: $e');
                                 }
                               }
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
+                              else {
+                                print("error");
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                            ),
+                            child: const Text('Login'),
                           ),
-                          child: const Text('Login'),
                         ),
                       ),
                       Row(
