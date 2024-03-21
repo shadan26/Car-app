@@ -1,18 +1,16 @@
 import 'dart:io';
-import 'dart:math';
-import 'package:ecommerc_project/product/presentation/views/Product%20Views/Admin_home_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:uuid/uuid.dart';
 import '../../../core/Firebase/FirebaseManager.dart';
 import '../../../core/utils/widget/text_form_filed_widget.dart';
-import '../../domain/entity/car_product_entity.dart';
-import '../views/Product Views/user_home_page.dart';
+import '../../core/utils/widget/button_widget.dart';
+import '../../product/domain/entity/car_product_entity.dart';
+import '../view/screens/admin_home_page.dart';
+
 
 class AddEditProduct extends StatefulWidget {
   const AddEditProduct({Key? key, required this.productActionType, this.productData}) : super(key: key);
@@ -43,6 +41,7 @@ class _AddEditProductState extends State<AddEditProduct> {
   XFile? xFile;
   ProductActionType? actionType;
   Map<String, dynamic>? productData;
+  bool _isLoading = false;
 
   _AddEditProductState(ProductActionType this.actionType, Map<String, dynamic>? this.productData);
 
@@ -145,8 +144,11 @@ class _AddEditProductState extends State<AddEditProduct> {
                   SizedBox(
                     width: width,
                     height: 40,
-                    child: ElevatedButton(
+                    child: MyButton (
                       onPressed: () async {
+                        setState(() {
+                          _isLoading = true; // Show loading indicator
+                        });
                         File file = File(xFile!.path);
                         var car = Car(
                             id: ( const Uuid().v1()),
@@ -167,14 +169,16 @@ class _AddEditProductState extends State<AddEditProduct> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const ShowAdminProductView(),
+                            builder: (context) => ShowAdminProductView()
                           ),
                         );
                       },
                       style: ElevatedButton.styleFrom(),
-                      child: Text(
+                      child:  _isLoading
+                          ? const CircularProgressIndicator()
+                          : Text(
                         actionType == ProductActionType.add ? 'Add' : "Edit",
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Colors.blue,

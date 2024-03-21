@@ -1,9 +1,6 @@
-// product_detail.dart
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ecommerc_project/product/presentation/widgets/add_edit_proudct.dart';
 import 'package:flutter/material.dart';
-import '../widgets/edit.dart';
+import '../../../admin/controller/add_edit_proudct.dart';
 
 class ProductDetailPage extends StatelessWidget {
   final Map<String, dynamic> productData; // Pass product data to the detail page

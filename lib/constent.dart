@@ -229,7 +229,7 @@ const kPrimaryColor=Color(0xff365b6d);
 //           'The Nissan Altima is a mid-size sedan known for its fuel efficiency, comfortable ride, and spacious interior. It offers a range of engine options, including efficient four-cylinder engines and available all-wheel drive for enhanced traction in various driving conditions. ',
 //       callMe: " 0785932392", description: '', id: 1),
 // ];
-
+//
 List<Map<String, dynamic>> carInfo = [
   {
     "carText": 'Toyota',

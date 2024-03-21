@@ -1,29 +1,35 @@
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecommerc_project/core/Firebase/FirebaseManager.dart';
-import 'package:ecommerc_project/product/presentation/widgets/Authentication/sign_up.dart';
+import 'package:ecommerc_project/product/presentation/views/authentication/sign_up.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-
 import '../../../../constent.dart';
+import '../../../../core/utils/widget/button_widget.dart';
 import '../../../../core/utils/widget/text_form_filed_widget.dart';
-import '../../views/Product Views/admin_home_page.dart';
-import '../../views/Product Views/user_home_page.dart';
+import '../../../../admin/view/screens/admin_home_page.dart';
+import '../../../../user/view/screens/user_home_page.dart';
 
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
 
+
+
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
+
 class _LoginScreenState extends State<LoginScreen> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
   bool showPassword = false;
 
   TextEditingController emailTextEditingController = TextEditingController();
@@ -31,18 +37,6 @@ class _LoginScreenState extends State<LoginScreen> {
   String? errorMessage;
   final _formKey = GlobalKey<FormState>();
   FirebaseAuth ? firebaseAuth;
-
-  // Future<void> getData() async {
-  //   final id = FirebaseAuth.instance.currentUser!.uid;
-  //   final collection = FirebaseFirestore.instance.collection("users");
-  //   final result = await collection.where("id", isEqualTo: id).get();
-  //   if (result.docs.isNotEmpty) {
-  //     final roleFi = result.docs.first.data()['role'];
-  //     setState(() {
-  //       role = roleFi;
-  //     });
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -136,17 +130,19 @@ class _LoginScreenState extends State<LoginScreen> {
                             }
                             return null;
                           },
-                          suffixIcon:  IconButton(
+                          suffixIcon: IconButton(
                             icon: Icon(
                               showPassword ?
                               Icons.visibility :
                               Icons.visibility_off,
-                              color: Theme.of(context).primaryColorDark,
+                              color: Theme
+                                  .of(context)
+                                  .primaryColorDark,
                             ),
                             onPressed: () {
                               setState(() {
                                 showPassword = !showPassword;
-                                });
+                              });
                             },
                           ),
                         ),
@@ -167,27 +163,36 @@ class _LoginScreenState extends State<LoginScreen> {
                         width: width,
                         height: 40,
                         child: Expanded(
-                          child: ElevatedButton(
+                          child: MyButton(
+
                             onPressed: () async {
                               if (_formKey.currentState!.validate()) {
-
-                                var loginResults = await FirebaseManager().login(emailTextEditingController.text, passwordTextEditingController.text);
+                                var loginResults = await FirebaseManager()
+                                    .login(emailTextEditingController.text,
+                                    passwordTextEditingController.text);
                                 if (loginResults.isSuccess) {
-                                  var isAdmin = await FirebaseManager().isAdmin();
+                                  await FirebaseManager().truelogin();
+                                  //  SharedPreferences prefs = await SharedPreferences.getInstance();
+                                  // await prefs.setBool("islogin", true);
+                                  var isAdmin = await FirebaseManager()
+                                      .isAdmin();
                                   if (isAdmin) {
                                     Navigator.push(context, MaterialPageRoute(
-                                        builder: (context) => const ShowAdminProductView()));
+                                        builder: (
+                                            context) => const ShowAdminProductView()));
                                   } else {
                                     Navigator.push(context, MaterialPageRoute(
-                                        builder: (context) => const ShowProductView()));
+                                        builder: (
+                                            context) => const ShowProductView()));
                                   }
                                 } else {
                                   setState(() {
                                     errorMessage =
-                                    loginResults.error;
+                                        loginResults.error;
                                   });
                                 }
                               }
+
                               else {
                                 print("error");
                               }

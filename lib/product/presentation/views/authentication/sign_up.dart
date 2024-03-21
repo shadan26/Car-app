@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ecommerc_project/core/Firebase/FirebaseManager.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -6,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../constent.dart';
+import '../../../../core/utils/widget/button_widget.dart';
 import '../../../../core/utils/widget/text_form_filed_widget.dart';
-import '../../views/Product Views/admin_home_page.dart';
-import '../../views/Product Views/user_home_page.dart';
+import '../../../../admin/view/screens/admin_home_page.dart';
+import '../../../../user/view/screens/user_home_page.dart';
+import 'login_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);
@@ -185,7 +186,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         SizedBox(
                           width: width,
                           height: 30,
-                          child: ElevatedButton(
+                          child: MyButton (
                             onPressed: () async {
                               if (_formKey.currentState!.validate()) {
                               var authResult = await FirebaseManager().register(emailTextEditingController.text,
@@ -227,7 +228,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             TextButton(
                               onPressed: () {
                                 Navigator.push(context, MaterialPageRoute(
-                                  builder: (context) => const SignUpScreen(),));
+                                  builder: (context) => const LoginScreen(),));
                               },
                               child: const Text(
                                 'Sign In',

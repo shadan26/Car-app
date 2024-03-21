@@ -1,13 +1,7 @@
-import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import '../../config/firebase/firebase_options.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../product/domain/entity/car_product_entity.dart';
 
 class AuthResult {
@@ -22,8 +16,6 @@ class AuthResult {
 
 class FirebaseManager {
 
-  // XFile? xFile;
-  // Private constructor to prevent instantiation from outside.
   FirebaseManager._();
 
   // Singleton instance.
@@ -34,6 +26,9 @@ class FirebaseManager {
 
   FirebaseAuth ? firebaseAuth;
   User? firebaseUser;
+  var currentTimestamp = Timestamp.fromMillisecondsSinceEpoch(DateTime
+      .now()
+      .millisecondsSinceEpoch);
 
   Future<AuthResult> login(String email, String password) async {
     try {
@@ -43,26 +38,17 @@ class FirebaseManager {
       );
       return AuthResult(isSuccess: true);
     } on FirebaseAuthException catch (e) {
-      var errorMessage = "";
-      if (e.code == 'user-not-found') {
-        errorMessage =
-        'user-not-found';
-      } else if (e.code == 'wrong-password') {
-        // Handle the case where password is incorrect
-        errorMessage =
-        'wrong-password';
-      } else if (e.code == 'invalid-credential') {
-        errorMessage = 'invalid credentials';
-      }
+      if (e.code == 'user-not-found') {} else
+      if (e.code == 'wrong-password') {} else
+      if (e.code == 'invalid-credential') {}
 
       return AuthResult(isSuccess: false, error: e.message);
-    } catch (e) {
-      // Handle other exceptions
-      return AuthResult(isSuccess: false, error: e.toString());
     }
+    // catch (e) {
+    //   return AuthResult(isSuccess: false, error: e.toString());
+    // }
   }
 
-  // Register method.
   Future<AuthResult> register(String email, String password,
       String role) async {
     try {
@@ -86,29 +72,30 @@ class FirebaseManager {
 
       return AuthResult(isSuccess: true);
     } on FirebaseAuthException catch (e) {
-      var errorMessage = "";
-      if (e.code == 'weak-password') {
-        errorMessage =
-        'weak-password';
-      } else if (e.code == 'email-already-in-use') {
-        errorMessage =
-        'The account already exists for that email.';
-      }
-      return AuthResult(isSuccess: false, error: errorMessage);
-    } catch (e) {
+      if (e.code == 'weak-password') {} else
+      if (e.code == 'email-already-in-use') {}
+      return AuthResult(isSuccess: true, error: e.message);
+    }
+    catch (e) {
       // Handle other exceptions
-      return AuthResult(isSuccess: false, error: e.toString());
+      return AuthResult(isSuccess: true, error: e.toString());
     }
   }
 
-  // Logout method.
   Future<void> logout() async {
-    await FirebaseAuth.instance.signOut();
-    firebaseUser = FirebaseAuth.instance.currentUser;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove('islogin');
+    //  await FirebaseAuth.instance.signOut();
+    // firebaseUser = FirebaseAuth.instance.currentUser;
   }
 
-  Future<List<Car>?> getCars() async {
-        }
+
+  Stream<QuerySnapshot> getCars() {
+    return FirebaseFirestore.instance.collection("product").orderBy(
+        'createdAt', descending: true).
+    startAt([currentTimestamp]).
+    snapshots();
+  }
 
 
   Future<void> addCar(Car car) async {
@@ -121,8 +108,8 @@ class FirebaseManager {
         'year': car.year,
         'color': car.color,
         'price': car.price,
-        'description': car.description, // Corrected to 'description'
-        'call': car.callMe, // Assuming 'call' is correct, otherwise adjust accordingly
+        'description': car.description,
+        'call': car.callMe,
         'imageName': car.imageName,
         'createdAt': car.createdAt,
       });
@@ -133,10 +120,12 @@ class FirebaseManager {
   }
 
   Future<void> editCar(Car car) async {
-    CollectionReference collectionReference = FirebaseFirestore.instance.collection('product');
+    CollectionReference collectionReference = FirebaseFirestore.instance
+        .collection('product');
     try {
       // Query for the document with the specified ID
-      QuerySnapshot querySnapshot = await collectionReference.where('id', isEqualTo: car.id).get();
+      QuerySnapshot querySnapshot = await collectionReference.where(
+          'id', isEqualTo: car.id).get();
 
       // Check if any documents match the query
       if (querySnapshot.docs.isNotEmpty) {
@@ -156,21 +145,33 @@ class FirebaseManager {
           'createdAt': car.createdAt,
           // Add other fields as needed
         });
-
       } else {
-        // Handle case where no matching document is found
         throw Exception('No document found with the specified ID.');
       }
     } catch (e) {
-      // Handle errors
       print('Error updating document: $e');
       throw(e);
     }
   }
 
 
-    Future<void> removeCar(String productId) async {
+  Future<void> removeCar(Car car) async {
+    final collectionReference = FirebaseFirestore.instance.collection('product');
+
+    try {
+      final result = await collectionReference
+          .where('id', isEqualTo: car.id)
+          .get();
+
+      if (result.docs.isNotEmpty) {
+        final documentId = result.docs.first.id;
+        await collectionReference.doc(documentId).delete();
+      }
+    } catch (e, stackTrace) {
+      print('Error deleting document: $e');
+      print(stackTrace);
     }
+  }
 
   Future<bool> isAdmin() async {
     var role = "";
@@ -181,5 +182,17 @@ class FirebaseManager {
       role = result.docs.first.data()['role'];
     }
     return role == "admin";
-    }
   }
+
+  Future<bool> isloggedIn() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool("islogin") ?? false;
+  }
+
+  Future<bool> truelogin() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.setBool("islogin", true);
+  }
+}
+
+
