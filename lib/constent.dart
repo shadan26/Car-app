@@ -1,8 +1,29 @@
 // List of constant cars with image URLs from network
 import 'dart:ui';
 
+import 'package:ecommerc_project/core/Firebase/FirebaseManager.dart';
 import 'package:ecommerc_project/product/domain/entity/car_product_entity.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 const kPrimaryColor=Color(0xff365b6d);
+
+
+// class NotificationListenerProvider {
+//   final  _firebaseMessaging = FirebaseMessaging.instance.getInitialMessage();
+//   void getMessage() {
+//     var notification;
+//     print("::::::::::::::::::::::::::::::::::$notification");
+//     FirebaseMessaging.onMessage.listen((RemoteMessage event) {
+//       RemoteNotification notification = event.notification!;
+//       AndroidNotification androidNotification = event.notification!.android!;
+//
+//       if (notification != null && androidNotification != null) {
+//         FirebaseManager().sendNotification(title: notification.title!, body: notification.body!);
+//       }
+//     });
+//   }
+//
+// }
+
 // final List<Car> carList = [
 //   Car(
 //       brand: 'Toyota',

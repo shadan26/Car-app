@@ -7,30 +7,35 @@ import '../../../product/presentation/views/detail_product_view.dart';
 import '../../../core/Firebase/FirebaseManager.dart';
 
 class Listofadmin extends StatefulWidget {
-  const Listofadmin({super.key});
+
+    late List<QueryDocumentSnapshot<Object?>>? docs;
+
+   Listofadmin({Key? key, this.docs}) : super(key: key);
 
   @override
   State<Listofadmin> createState() => _ListofadminState();
 }
 
 class _ListofadminState extends State<Listofadmin> {
+  late Map<String, dynamic> data;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.docs != null && widget.docs!.isNotEmpty) {
+      data = widget.docs![0].data() as Map<String, dynamic>;
+    } else {
+      data = {};
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return  StreamBuilder<QuerySnapshot>(
-        stream:
-        FirebaseManager().getCars(),
-    builder: (BuildContext context, snapshot) {
-    if (snapshot.hasError) {
-    return Text('Error: ${snapshot.error}');
-    }
-
-    if (snapshot.connectionState == ConnectionState.waiting) {
-    return const CircularProgressIndicator();
-    }
     return  ListView.builder(
-      itemCount: snapshot.data!.docs.length,
+      itemCount: widget.docs?.length,
       itemBuilder: (BuildContext context, int index) {
-        final data = snapshot.data!.docs[index].data()
+        var data = widget.docs?[index].data()
         as Map<String, dynamic>;
         return InkWell(
           onTap: () {
@@ -75,7 +80,7 @@ class _ListofadminState extends State<Listofadmin> {
                     Align(
                       alignment: Alignment.bottomLeft,
                       child: Text(
-                        "${data['price']}\$",
+                        "${data?['price']}\$",
                         style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
@@ -93,19 +98,29 @@ class _ListofadminState extends State<Listofadmin> {
                         Navigator.push(context,
                             MaterialPageRoute(
                                 builder: (context) {
-                                  if (kDebugMode) {
-                                    print(data);
-                                  }
                                   return AddEditProduct(productActionType: ProductActionType.edit, productData: data); //EditProduct(productData: data);
-                                }));
+                                })).then((value) => {
+                                  setState(() {
+                                    var editedCar = value as Car;
+                                    data['id'] = editedCar.id;
+                                    data['model'] = editedCar.model;
+                                    data['brand'] = editedCar.brand;
+                                    data['price'] = editedCar.price;
+                                    data['call'] = editedCar.callMe;
+                                    data['imageName'] = editedCar.imageName;
+                                    data['year'] = editedCar.year;
+                                    data['description']=editedCar.description;
+                                    data["color"]=editedCar.color;
+                                  })
+                        });
                       },
                       icon: const Icon(Icons.edit,
                           color: Colors.black),
                     ),
                     IconButton(
                       onPressed: () async {
-                        await FirebaseManager().removeCar(Car(id: data['id']));
-
+                        await FirebaseManager().removeCar(data['id']);
+                        setState(() {});
                       },
                       icon: const Icon(Icons.delete,
                           color: Colors.red),
@@ -118,5 +133,5 @@ class _ListofadminState extends State<Listofadmin> {
         );
       },
     );
-  });
-}}
+  }
+}

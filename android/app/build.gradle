@@ -2,7 +2,8 @@ plugins {
     id "com.android.application"
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
-
+    id("com.google.gms.google-services")
+    //id("com.google.gms.google-services") version "4.4.1" apply false
 
 }
 
@@ -48,8 +49,8 @@ android {
         applicationId "com.example.ecommerc_project"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion flutter.minSdkVersion
-        targetSdkVersion flutter.targetSdkVersion
+        minSdkVersion 21
+        targetSdkVersion 30
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         multiDexEnabled true
@@ -70,4 +71,6 @@ flutter {
 
 dependencies {
     implementation 'com.android.support:multidex:1.0.3'
+    implementation 'com.google.firebase:firebase-appcheck-safetynet:16.0.0'
+    implementation'com.google.firebase:firebase-messaging'
 }

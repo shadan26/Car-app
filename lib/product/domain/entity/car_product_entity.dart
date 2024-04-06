@@ -7,23 +7,28 @@ class Car {
   final String? color;
   final double? price;
   final String? description;
-  late final String imageName;
-  final String id;
+   final String  ? imageName;
+  final String ?id;
   File? file;
   final String ? callMe;
   int ?createdAt;
 
-  Car({required this.id
+  Car({ this.id
     ,this.description,
     this.brand,
          this.model,
          this.year,
         this.color,
          this.price,
-        this.imageName = '',
+        this.imageName,
        this.createdAt,
    this.callMe, String ? desecription});
 }
+
+
+
+
+
 
 
 

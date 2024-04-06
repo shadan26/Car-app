@@ -5,11 +5,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../../../core/utils/widget/drop_down_widget.dart';
 import '../../../core/utils/widget/grid_view_product.dart';
-import '../../../product/domain/entity/car_product_entity.dart';
 import '../../../core/utils/widget/local_filter_car.dart';
 import '../../../core/utils/widget/firebase_filter_car.dart';
 import '../../../product/presentation/views/authentication/login_screen.dart';
-import '../../../product/presentation/views/detail_product_view.dart';
 
 
 class ShowProductView extends StatefulWidget {
@@ -25,13 +23,6 @@ class _ShowProductViewState extends State<ShowProductView> {
     return FirebaseFirestore.instance.collection('product').snapshots();
   }
 
-  String selectedModel = '';
-  int selectedPrice = 0;
-  String selectedBrand = '';
-  String? selectedCategory;
-  List<Car>? selectedCarList;
-
-
   User? firebaseUser;
   var currentTimestamp = Timestamp.fromMillisecondsSinceEpoch(DateTime
       .now()
@@ -43,6 +34,8 @@ class _ShowProductViewState extends State<ShowProductView> {
   void initState() {
     super.initState();
   }
+  late Gridviewproductt girdView = Gridviewproductt();
+  List<QueryDocumentSnapshot<Object?>>? docs;
 
   @override
   Widget build(BuildContext context) {
@@ -67,8 +60,11 @@ class _ShowProductViewState extends State<ShowProductView> {
               onPressed: () {
                 showDialog(context: context, builder: (BuildContext context) {
                   return Carfilter();
+                }).then((value) {
+                  var querySnapshot = value as QuerySnapshot;
+                  docs = querySnapshot.docs;
+                  setState(() {});
                 });
-
               },
               icon: const Icon(Icons.refresh, color: Colors.green),
             ),
@@ -112,75 +108,16 @@ class _ShowProductViewState extends State<ShowProductView> {
                 return const CircularProgressIndicator();
               }
 
+              if (docs?.isEmpty != null) {
+                girdView.docs = docs;
+              } else {
+                girdView.docs = snapshot.data?.docs;
+              }
               return Column(
                 children: [
-                  DropDownCategory(),
+                  const DropDownCategory(),
                   Expanded(
-                    child:Gridviewproduct(snapshot: snapshot),
-                    // GridView.builder(
-                    //   gridDelegate:
-                    //   const SliverGridDelegateWithFixedCrossAxisCount(
-                    //     crossAxisCount: 2,
-                    //     crossAxisSpacing: 10,
-                    //     mainAxisSpacing: 10,
-                    //   ),
-                    //   itemCount: snapshot.data!.docs.length,
-                    //   itemBuilder: (BuildContext context, int index) {
-                    //     final data = snapshot.data!.docs[index].data()
-                    //     as Map<String, dynamic>;
-                    //     return InkWell(
-                    //       onTap: () {
-                    //         Navigator.push(
-                    //           context,
-                    //           MaterialPageRoute(
-                    //             builder: (context) =>
-                    //                 ProductDetailPage(productData: data),
-                    //           ),
-                    //         );
-                    //       },
-                    //       child: Container(
-                    //         padding: const EdgeInsets.all(5),
-                    //         decoration: BoxDecoration(
-                    //           borderRadius: BorderRadius.circular(10),
-                    //           color: Colors.white,
-                    //         ),
-                    //         child: Column(
-                    //           crossAxisAlignment:
-                    //           CrossAxisAlignment.start,
-                    //           mainAxisAlignment: MainAxisAlignment.end,
-                    //           children: [
-                    //             Image.network(
-                    //               data['imageName'],
-                    //               errorBuilder:
-                    //                   (context, error, stackTrace) =>
-                    //               const Icon(Icons.error),
-                    //               height: 100,
-                    //             ),
-                    //             Text(
-                    //               "${data['brand']} ${data['model']}",
-                    //               style: const TextStyle(
-                    //                 fontSize: 15,
-                    //                 fontWeight: FontWeight.w500,
-                    //               ),
-                    //             ),
-                    //             const SizedBox(height: 10),
-                    //             Align(
-                    //               alignment: Alignment.bottomLeft,
-                    //               child: Text(
-                    //                 "${data['price']}\$",
-                    //                 style: const TextStyle(
-                    //                   fontSize: 10,
-                    //                   fontWeight: FontWeight.bold,
-                    //                   color: Colors.red,
-                    //                 ),
-                    //               ),
-                    //             ),
-                    //           ],
-                    //         ),
-                    //       ),
-                    //     );
-                    //   },
-                    // ),
+                    child: girdView,
                   ),
                 ],
               );
@@ -191,46 +128,20 @@ class _ShowProductViewState extends State<ShowProductView> {
     );
   }
 
-  // Future<void> getData(String model, int price, String brand) async {
-  //   CollectionReference productRef = FirebaseFirestore.instance.collection(
-  //       "product");
-  //
-  //   try {
-  //     // Construct the query based on selected filters
-  //     QuerySnapshot querySnapshot = await productRef
-  //         .where("model", isEqualTo: model.isNotEmpty
-  //         ? model
-  //         : null) // Apply model filter if not empty
-  //         .where("price", isEqualTo: price > 0
-  //         ? price
-  //         : null) // Apply price filter if greater than 0
-  //         .where("brand", isEqualTo: brand.isNotEmpty
-  //         ? brand
-  //         : null) // Apply brand filter if not empty
-  //         .get();
-  //
-  //     // Iterate through the results and do something with the data
-  //     querySnapshot.docs.forEach((DocumentSnapshot document) {
-  //       print(document.data());
-  //     });
-  //   } catch (e) {
-  //     print("Error getting documents: $e");
-  //   }
-  // }
 
 
   void handleLogout(BuildContext context) async {
     await FirebaseManager().logout();
     runApp(
-        new MaterialApp(
-          home: new LoginScreen(),
+        const MaterialApp(
+          home: LoginScreen(),
         )
 
     );
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => LoginScreen(),
+        builder: (context) => const LoginScreen(),
       ),
     );
     if (kDebugMode) {

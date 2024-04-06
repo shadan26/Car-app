@@ -5,6 +5,25 @@ class  FilterDialog extends StatefulWidget {
   late String selectedModel;
   late int ?selectedPrice;
   late String selectedBrand;
+  List<Map<String, dynamic>> filteredCars = [
+    {
+      'brand': 'Toyota',
+      'model': 'Camry',
+      'price': 25000,
+    },
+    {
+      'brand': 'Toyota',
+      'model': 'Corolla',
+      'price': 20000,
+    },
+    {
+      'brand': 'Honda',
+      'model': 'Accord',
+      'price': 28000,
+    },
+  ];
+
+  List<Map<String, dynamic>> filteredCarsResult = [];
 
   FilterDialog({
     this.selectedModel="",
@@ -14,12 +33,15 @@ class  FilterDialog extends StatefulWidget {
 
   ) ;
 
+
   @override
   _FilterDialogState createState() => _FilterDialogState(selectedModel:selectedModel,  selectedBrand: selectedBrand);
 }
 
 
+
 class _FilterDialogState extends State<FilterDialog> {
+
   String selectedModel = '';
   int selectedPrice = 0;
   String selectedBrand = '';
@@ -55,12 +77,12 @@ class _FilterDialogState extends State<FilterDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Filter Cars'),
+      title: const Text('Local filter results'),
       content: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Model:'),
+            const Text('Model:'),
             DropdownButton<String>(
               value: selectedModel,
               onChanged: (String? newValue) {

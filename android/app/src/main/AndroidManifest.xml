@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.CALL_PHONE"/>
+
     <application
         android:label="ecommerc_project"
         android:name="${applicationName}"
