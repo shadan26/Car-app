@@ -277,16 +277,12 @@ import '../../../../core/utils/widget/text_form_filed_widget.dart';
 import '../../../../admin/view/screens/admin_home_page.dart';
 import '../../../../user/view/screens/user_home_page.dart';
 
-
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
-
-
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
-
 
 class _LoginScreenState extends State<LoginScreen> {
   @override
@@ -295,23 +291,18 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   bool showPassword = false;
+  LoginBloc get bloc => context.read();
 
   TextEditingController emailTextEditingController = TextEditingController();
   TextEditingController passwordTextEditingController = TextEditingController();
   String? errorMessage;
   final _formKey = GlobalKey<FormState>();
-  FirebaseAuth ? firebaseAuth;
+  FirebaseAuth? firebaseAuth;
 
   @override
   Widget build(BuildContext context) {
-    double height = MediaQuery
-        .of(context)
-        .size
-        .height;
-    double width = MediaQuery
-        .of(context)
-        .size
-        .width;
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
 
     return SafeArea(
       child: BlocConsumer<LoginBloc, LoginState>(
@@ -323,13 +314,15 @@ class _LoginScreenState extends State<LoginScreen> {
               await FirebaseMessaging.instance.subscribeToTopic("admin");
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ShowAdminProductView()),
+                MaterialPageRoute(
+                    builder: (context) => const ShowAdminProductView()),
               );
             } else {
               await FirebaseMessaging.instance.subscribeToTopic("user");
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ShowProductView()),
+                MaterialPageRoute(
+                    builder: (context) => const ShowProductView()),
               );
             }
           } else if (state is LoginFailure) {
@@ -338,206 +331,225 @@ class _LoginScreenState extends State<LoginScreen> {
             });
           }
         },
-  builder: (context, state) {
-    return Scaffold(
-        backgroundColor: kPrimaryColor,
-        body: SingleChildScrollView(
-          child: Column(
+        builder: (context, state) {
+          return BlocConsumer<LoginBloc, LoginState>(
+            listener: (context, state) {
+              if(state is LoginSuccess){
+                Navigator.push(context, MaterialPageRoute(builder:(context) => ShowProductView(), ));
+              }
+              if(state is LoginFailure){
+                print( state.errorMassage);
 
-            children: [
-              SizedBox(
-                width: width,
-                height: height * .3,
-                child: Center(
-                  child: Image.asset(
-                    "assets/images/Green Abstract Illustrative Automotive Car Logo.png",
-                  ),
-                ),
-              ),
-              Form(
-                key: _formKey,
-                child: Container(
-                  width: width,
-                  height: height * .71,
-                  padding: const EdgeInsets.all(20),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                  ),
+              }
+              // TODO: implement listener
+            },
+            builder: (context, state) {
+              if(state is LoginLoading){
+                return CircularProgressIndicator();
+              }
+              return Scaffold(
+                backgroundColor: kPrimaryColor,
+                body: SingleChildScrollView(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Login',
-                        style: GoogleFonts.poppins(
-                          textStyle: const TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 7),
-                      Text(
-                        'Welcome! Log in with your email and password',
-                        style: GoogleFonts.poppins(
-                          textStyle: const TextStyle(
-                            color: Color.fromARGB(255, 66, 63, 63),
-                            fontSize: 15,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 40),
-                      Container(
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 20),
-                          child: TextFiledWidget(
-                            controller: emailTextEditingController,
-                            labelText: 'email',
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your email';
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 20),
-                        child: TextFiledWidget(
-                          //obscureText: !showPassword,
-                          controller: passwordTextEditingController,
-                          labelText: 'password',
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your password';
-                            }
-                            return null;
-                          },
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              showPassword ?
-                              Icons.visibility :
-                              Icons.visibility_off,
-                              color: Theme
-                                  .of(context)
-                                  .primaryColorDark,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                showPassword = !showPassword;
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Container(
-                        margin: const EdgeInsets.only(right: 20),
-
-                      ),
-                      const SizedBox(height: 10),
-                      errorMessage != null ?
-                      Row(children: [
-                        const Icon(Icons.error, color: Colors.red,),
-                        Expanded(child: Text(errorMessage!))
-
-                      ],) : const Text((''))
-                      , SizedBox(
+                      SizedBox(
                         width: width,
-                        height: 40,
-                        child: Expanded(
-                          child: Expanded(
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                if (_formKey.currentState!.validate()) {
-                                //   var loginResults = await FirebaseManager().login(
-                                //       emailTextEditingController.text,
-                                //       passwordTextEditingController.text);
-                                //   if (loginResults.isSuccess) {
-                                //     await FirebaseManager().truelogin();
-                                //     var isAdmin = await FirebaseManager().isAdmin();
-                                //     if (isAdmin) {
-                                //       await FirebaseMessaging.instance.subscribeToTopic("admin");
-                                //       Navigator.push(
-                                //         context,
-                                //         MaterialPageRoute(builder: (context) => ShowAdminProductView()),
-                                //       );
-                                //     } else {
-                                //       await FirebaseMessaging.instance.subscribeToTopic("user");
-                                //       Navigator.push(
-                                //         context,
-                                //         MaterialPageRoute(builder: (context) => const ShowProductView()),
-                                //       );
-                                //     }
-                                //   } else {
-                                //     setState(() {
-                                //       errorMessage = loginResults.error;
-                                //     });
-                                //   }
-                                // } else {
-                                //   print("error");
-                                }
-                              },
-                               style: ElevatedButton.styleFrom(),
-                                child: const Text('Login'),
-                            ),
+                        height: height * .3,
+                        child: Center(
+                          child: Image.asset(
+                            "assets/images/Green Abstract Illustrative Automotive Car Logo.png",
                           ),
-
                         ),
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Don\'t have an account?',
-                            style: GoogleFonts.poppins(
-                              textStyle: const TextStyle(
-                                color: Color.fromARGB(255, 66, 63, 63),
-                                fontSize: 16,
-                                fontWeight: FontWeight.w400,
-                              ),
+                      Form(
+                        key: _formKey,
+                        child: Container(
+                          width: width,
+                          height: height * .71,
+                          padding: const EdgeInsets.all(20),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(30),
+                              topRight: Radius.circular(30),
                             ),
                           ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.push(context, MaterialPageRoute(
-                                builder: (context) => const SignUpScreen(),));
-                            },
-                            child: const Text(
-                              'Register',
-                              style: TextStyle(
-                                color: Colors.cyan,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Login',
+                                style: GoogleFonts.poppins(
+                                  textStyle: const TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
                               ),
-                            ),
+                              const SizedBox(height: 7),
+                              Text(
+                                'Welcome! Log in with your email and password',
+                                style: GoogleFonts.poppins(
+                                  textStyle: const TextStyle(
+                                    color: Color.fromARGB(255, 66, 63, 63),
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 40),
+                              Container(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 20),
+                                  child: TextFiledWidget(
+                                    controller: emailTextEditingController,
+                                    labelText: 'email',
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please enter your email';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Padding(
+                                padding: const EdgeInsets.only(right: 20),
+                                child: TextFiledWidget(
+                                  //obscureText: !showPassword,
+                                  controller: passwordTextEditingController,
+                                  labelText: 'password',
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your password';
+                                    }
+                                    return null;
+                                  },
+                                  suffixIcon: IconButton(
+                                    icon: Icon(
+                                      showPassword
+                                          ? Icons.visibility
+                                          : Icons.visibility_off,
+                                      color: Theme.of(context).primaryColorDark,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        showPassword = !showPassword;
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Container(
+                                margin: const EdgeInsets.only(right: 20),
+                              ),
+                              const SizedBox(height: 10),
+                              errorMessage != null
+                                  ? Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.error,
+                                          color: Colors.red,
+                                        ),
+                                        Expanded(child: Text(errorMessage!))
+                                      ],
+                                    )
+                                  : const Text(('')),
+                              SizedBox(
+                                width: width,
+                                height: 40,
+                                child: Expanded(
+                                  child: Expanded(
+                                    child: ElevatedButton(
+                                      onPressed: () async {
+                                        if (_formKey.currentState!.validate()) {
+                                          bloc.onEvent(LoginButtonPressed(
+                                              email: emailTextEditingController
+                                                  .text,
+                                              password:
+                                                  passwordTextEditingController
+                                                      .text));
+                                          //   var loginResults = await FirebaseManager().login(
+                                          //       emailTextEditingController.text,
+                                          //       passwordTextEditingController.text);
+                                          //   if (loginResults.isSuccess) {
+                                          //     await FirebaseManager().truelogin();
+                                          //     var isAdmin = await FirebaseManager().isAdmin();
+                                          //     if (isAdmin) {
+                                          //       await FirebaseMessaging.instance.subscribeToTopic("admin");
+                                          //       Navigator.push(
+                                          //         context,
+                                          //         MaterialPageRoute(builder: (context) => ShowAdminProductView()),
+                                          //       );
+                                          //     } else {
+                                          //       await FirebaseMessaging.instance.subscribeToTopic("user");
+                                          //       Navigator.push(
+                                          //         context,
+                                          //         MaterialPageRoute(builder: (context) => const ShowProductView()),
+                                          //       );
+                                          //     }
+                                          //   } else {
+                                          //     setState(() {
+                                          //       errorMessage = loginResults.error;
+                                          //     });
+                                          //   }
+                                          // } else {
+                                          //   print("error");
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(),
+                                      child: const Text('Login'),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Don\'t have an account?',
+                                    style: GoogleFonts.poppins(
+                                      textStyle: const TextStyle(
+                                        color: Color.fromARGB(255, 66, 63, 63),
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const SignUpScreen(),
+                                          ));
+                                    },
+                                    child: const Text(
+                                      'Register',
+                                      style: TextStyle(
+                                        color: Colors.cyan,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                     ],
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
-      );
-  },
-),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }
-
-
-
-
-
-
-
-
