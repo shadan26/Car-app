@@ -261,6 +261,7 @@
 // }
 
 import 'package:ecommerc_project/core/Firebase/FirebaseManager.dart';
+import 'package:ecommerc_project/login_model/login_bloc/login_bloc.dart';
 import 'package:ecommerc_project/product/presentation/views/authentication/sign_up.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -268,6 +269,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../constent.dart';
 import '../../../../core/utils/widget/button_widget.dart';
@@ -312,7 +314,32 @@ class _LoginScreenState extends State<LoginScreen> {
         .width;
 
     return SafeArea(
-      child: Scaffold(
+      child: BlocConsumer<LoginBloc, LoginState>(
+        listener: (context, state) async {
+          if (state is LoginSuccess) {
+            var loginResults = await FirebaseManager().truelogin();
+            var isAdmin = await FirebaseManager().isAdmin();
+            if (isAdmin) {
+              await FirebaseMessaging.instance.subscribeToTopic("admin");
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ShowAdminProductView()),
+              );
+            } else {
+              await FirebaseMessaging.instance.subscribeToTopic("user");
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ShowProductView()),
+              );
+            }
+          } else if (state is LoginFailure) {
+            setState(() {
+              errorMessage = state.errorMassage;
+            });
+          }
+        },
+  builder: (context, state) {
+    return Scaffold(
         backgroundColor: kPrimaryColor,
         body: SingleChildScrollView(
           child: Column(
@@ -429,36 +456,36 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: ElevatedButton(
                               onPressed: () async {
                                 if (_formKey.currentState!.validate()) {
-                                  var loginResults = await FirebaseManager().login(
-                                      emailTextEditingController.text,
-                                      passwordTextEditingController.text);
-                                  if (loginResults.isSuccess) {
-                                    await FirebaseManager().truelogin();
-                                    var isAdmin = await FirebaseManager().isAdmin();
-                                    if (isAdmin) {
-                                      await FirebaseMessaging.instance.subscribeToTopic("admin");
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (context) => ShowAdminProductView()),
-                                      );
-                                    } else {
-                                      await FirebaseMessaging.instance.subscribeToTopic("user");
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (context) => const ShowProductView()),
-                                      );
-                                    }
-                                  } else {
-                                    setState(() {
-                                      errorMessage = loginResults.error;
-                                    });
-                                  }
-                                } else {
-                                  print("error");
+                                //   var loginResults = await FirebaseManager().login(
+                                //       emailTextEditingController.text,
+                                //       passwordTextEditingController.text);
+                                //   if (loginResults.isSuccess) {
+                                //     await FirebaseManager().truelogin();
+                                //     var isAdmin = await FirebaseManager().isAdmin();
+                                //     if (isAdmin) {
+                                //       await FirebaseMessaging.instance.subscribeToTopic("admin");
+                                //       Navigator.push(
+                                //         context,
+                                //         MaterialPageRoute(builder: (context) => ShowAdminProductView()),
+                                //       );
+                                //     } else {
+                                //       await FirebaseMessaging.instance.subscribeToTopic("user");
+                                //       Navigator.push(
+                                //         context,
+                                //         MaterialPageRoute(builder: (context) => const ShowProductView()),
+                                //       );
+                                //     }
+                                //   } else {
+                                //     setState(() {
+                                //       errorMessage = loginResults.error;
+                                //     });
+                                //   }
+                                // } else {
+                                //   print("error");
                                 }
                               },
-                              style: ElevatedButton.styleFrom(),
-                              child: const Text('Login'),
+                               style: ElevatedButton.styleFrom(),
+                                child: const Text('Login'),
                             ),
                           ),
 
@@ -500,7 +527,9 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
           ),
         ),
-      ),
+      );
+  },
+),
     );
   }
 }

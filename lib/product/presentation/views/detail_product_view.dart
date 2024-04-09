@@ -5,18 +5,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import '../../domain/entity/notficiation_data.dart';
 
-
 FlutterPhoneDirectCaller?flutterPhoneDirectCaller;
 class ProductDetailPage extends StatelessWidget {
 
-  final Map<String, dynamic> productData; // Pass product data to the detail page
+  final Map<String, dynamic> productData;
 
   const ProductDetailPage({Key? key, required this.productData}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Product Detail'),
@@ -134,7 +131,6 @@ class ProductDetailPage extends StatelessWidget {
         ),
       ),
     );
-
   }
 }
 

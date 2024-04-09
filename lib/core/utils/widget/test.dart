@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import '../../Firebase/FirebaseManager.dart';
 import 'drop_down_widget.dart';
 import 'firebase_filter_car.dart';
@@ -15,6 +14,7 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
+
   List<QueryDocumentSnapshot<Object?>>? docs = [];
 
   @override
@@ -22,7 +22,7 @@ class _HomepageState extends State<Homepage> {
     return Scaffold(
       backgroundColor: Colors.blue[800],
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 2, // Set the current index of the bottom navigation bar
+        currentIndex: 2,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.add), label: ''),
           BottomNavigationBarItem(icon: Icon(Icons.account_circle_rounded), label: ''),
@@ -77,7 +77,7 @@ class _HomepageState extends State<Homepage> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     padding: const EdgeInsets.all(12),
-                    child: Row(
+                    child: const Row(
                       children: [
                         Icon(
                           Icons.search,
@@ -111,7 +111,7 @@ class _HomepageState extends State<Homepage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
+                          const Text(
                             'The Cars',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
